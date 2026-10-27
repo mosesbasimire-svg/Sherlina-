@@ -94,9 +94,46 @@ body.revealed .heart-stage{animation:heartExit .6s ease forwards}
 @keyframes heartExit{to{opacity:0;transform:scale(1.45);filter:blur(8px)}}
 @media(max-width:420px){main{width:92%}.letter{border-radius:21px}.btn.secondary{margin:10px 0 0}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+/* Page d'enveloppe ajoutée devant la surprise originale; le contenu existant reste intact. */
+#envelopeIntro{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 50% 30%,#741638 0%,#31091f 58%,#09030a 100%);transition:opacity .8s ease,visibility .8s ease;color:#fff8fc}
+#envelopeIntro.gone{opacity:0;visibility:hidden;pointer-events:none}
+.envelope-wrap{width:min(88vw,390px);text-align:center;perspective:1000px}
+.envelope-title{margin:0 0 9px;color:#ffe5a6;font:700 clamp(1.4rem,6vw,2rem) Georgia,serif;letter-spacing:.08em;text-shadow:0 0 18px #ff8aaf66}
+.envelope-sub{margin:0 0 25px;color:#ffe5ef;font:1rem/1.6 Arial,sans-serif}
+.envelope-button{position:relative;display:block;width:100%;aspect-ratio:1.35;border:1px solid #ffd889;border-radius:9px;background:linear-gradient(145deg,#c91f4b,#850d31 75%);box-shadow:0 15px 45px #0008,0 0 28px #ff477744;cursor:pointer;padding:0;overflow:visible;transform-style:preserve-3d;animation:envelopeFloat 3s ease-in-out infinite}
+.envelope-body{position:absolute;inset:0;border-radius:8px;overflow:hidden;background:linear-gradient(145deg,#c91f4b,#8d1036)}
+.envelope-body:before,.envelope-body:after{content:"";position:absolute;inset:0;background:#e94668;clip-path:polygon(0 0,50% 58%,100% 0);z-index:3;filter:drop-shadow(0 2px 3px #6a0824)}
+.envelope-body:after{background:linear-gradient(135deg,#a40f37,#d82c56);clip-path:polygon(0 100%,50% 43%,100% 100%);z-index:2}
+.envelope-letter{position:absolute;left:9%;right:9%;top:9%;height:78%;background:linear-gradient(#fff9e9,#ffe5ee);border-radius:5px;z-index:1;display:grid;place-items:start center;padding-top:18px;color:#9c173c;font:700 clamp(1rem,4.5vw,1.3rem) Georgia,serif;transition:transform .9s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 10px #5b0928}
+.envelope-seal{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-25%);width:clamp(62px,19vw,82px);height:clamp(62px,19vw,82px);display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff0b5,#e8b64d 50%,#94601a);border:2px solid #fff0b7;box-shadow:0 0 22px #ffd46eaa;color:#a20c35;font-size:clamp(2rem,9vw,3rem);transition:transform .6s,opacity .5s}
+.envelope-button.opening{animation:none}
+.envelope-button.opening .envelope-letter{transform:translateY(-53%) scale(1.02)}
+.envelope-button.opening .envelope-body:before{transform:rotateX(180deg);transform-origin:top;transition:transform .65s;z-index:4}
+.envelope-button.opening .envelope-seal{transform:translate(-50%,-25%) scale(1.35) rotate(20deg);opacity:0}
+.envelope-button:focus-visible{outline:3px solid #fff;outline-offset:7px}
+.envelope-instruction{margin:24px 0 0;color:#ffdf9b;font:600 .9rem/1.5 Arial,sans-serif;animation:envelopePulse 1.8s ease-in-out infinite}
+.envelope-credit{margin-top:16px;color:#ffd7e5;font:italic .85rem Arial,sans-serif;opacity:.85}
+@keyframes envelopeFloat{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-7px) rotate(.5deg)}}
+@keyframes envelopePulse{0%,100%{opacity:.7}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){#envelopeIntro *,#envelopeIntro{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
+<div id="envelopeIntro" role="dialog" aria-label="Une enveloppe surprise pour Sherlina">
+  <div class="envelope-wrap">
+    <h1 class="envelope-title">Pour Sherlina ❤️</h1>
+    <p class="envelope-sub">Une petite enveloppe, un grand sentiment…</p>
+    <button class="envelope-button" id="openEnvelope" type="button" aria-label="Ouvrir l’enveloppe">
+      <span class="envelope-body" aria-hidden="true"></span>
+      <span class="envelope-letter" aria-hidden="true">Pour toi, mon cœur…</span>
+      <span class="envelope-seal" aria-hidden="true">♥</span>
+    </button>
+    <p class="envelope-instruction">💌 Appuie sur l’enveloppe pour l’ouvrir</p>
+    <p class="envelope-credit">Avec tout mon amour ✨</p>
+  </div>
+</div>
 <div id="sky" aria-hidden="true"></div><div id="petals" aria-hidden="true"></div><div id="burst" aria-hidden="true"></div>
 <main>
   <div class="topline">Un petit monde rien que pour toi</div>
@@ -236,6 +273,21 @@ key.addEventListener('click',()=>{if(countdownStarted || document.body.classList
 document.getElementById('replay').addEventListener('click',()=>letter.scrollIntoView({behavior:'smooth',block:'start'}));
 document.getElementById('again').addEventListener('click',()=>{letter.classList.remove('open');document.body.classList.remove('revealed');stage.style.display='grid';heart.disabled=false;heart.style.animation='';heart.style.transform='';heart.classList.remove('exploding');key.classList.remove('turn','insert');key.style.opacity='1';countdownStarted=false;document.getElementById('countdown').classList.remove('show');document.getElementById('countdownLabel').classList.remove('show');document.getElementById('hint').style.display='block';document.getElementById('arrow').style.display='block';document.getElementById('note').style.display='block';window.scrollTo({top:0,behavior:'smooth'})});
 document.getElementById('songFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f){const a=document.getElementById('audio');a.src=URL.createObjectURL(f);a.style.display='block';a.play().catch(()=>{});}});
+</script>
+<script>
+(function(){
+  const intro=document.getElementById('envelopeIntro');
+  const button=document.getElementById('openEnvelope');
+  if(!intro||!button)return;
+  button.addEventListener('click',function(){
+    if(button.classList.contains('opening'))return;
+    button.classList.add('opening');
+    button.setAttribute('aria-label','Enveloppe ouverte');
+    /* Le clic autorise généralement le navigateur à lancer la mélodie. */
+    try{if(typeof playRomanticMelody==='function')playRomanticMelody();}catch(e){}
+    setTimeout(function(){intro.classList.add('gone');setTimeout(function(){intro.remove();},850);},1250);
+  });
+})();
 </script>
 </body>
 </html>
